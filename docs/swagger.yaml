@@ -1,0 +1,51 @@
+basePath: /
+definitions:
+  main.User:
+    properties:
+      age:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - age
+    - name
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API для управления пользователями
+  title: User Management API
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные нового пользоавателя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.User'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Пользователь успешно создан
+          schema:
+            type: string
+        "400":
+          description: Некорректный JSON в теле запроса
+          schema:
+            type: string
+        "409":
+          description: Пользователь с таким именем уже существует
+          schema:
+            type: string
+      summary: Создание нового пользователя
+      tags:
+      - users
+swagger: "2.0"

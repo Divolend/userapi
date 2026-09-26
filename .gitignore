@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+__MACOSX/
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Compiled binaries
+/bin/
+/build/
+/dist/
+
+# Coverage
+coverage.out
+coverage.html
+
+# IDE / editors
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Local database / runtime files
+*.db
+*.sqlite
+*.sqlite3
