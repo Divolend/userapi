@@ -42,3 +42,5 @@ coverage.html
 *.sqlite
 *.sqlite3.env
 pgdata/
+.env
+pgdata/
