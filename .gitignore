@@ -40,4 +40,5 @@ coverage.html
 # Local database / runtime files
 *.db
 *.sqlite
-*.sqlite3
+*.sqlite3.env
+pgdata/
