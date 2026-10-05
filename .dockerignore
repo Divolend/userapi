@@ -1,0 +1,5 @@
+.git
+.env
+pgdata
+logs
+.DS_Store
