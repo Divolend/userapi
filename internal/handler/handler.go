@@ -131,3 +131,8 @@ func AuthMiddleware(c *gin.Context) {
 
 }
 
+
+// HealthHandler возвращает OK, если сервис запущен.
+func HealthHandler(c *gin.Context) {
+	c.String(http.StatusOK, "OK\n")
+}

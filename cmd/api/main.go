@@ -30,6 +30,7 @@ func main() {
 	router := gin.Default()
 	router.Use(handler.LoggerMiddleware)
 
+	router.GET("/health", handler.HealthHandler)
 	router.GET("/users/:id", handler.IdHandler)
 	router.POST("/users", handler.AuthMiddleware, handler.CreateUserHandler)
 	router.PATCH("/users/:id", handler.AuthMiddleware, handler.UpdateHandler)
