@@ -1,0 +1,27 @@
+# Конфигурация golangci-lint v2 для UserAPI (ЛР6).
+# Уровни критичности задаём сами: golangci-lint по умолчанию их не имеет.
+# BLOCKER -> билд в TeamCity падает; остальные уровни попадают только в отчёт.
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard          # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - errorlint
+    - gocritic
+    - misspell
+  exclusions:
+    paths:
+      - docs                 # сгенерированный swagger-код
+
+severity:
+  default: minor
+  rules:
+    - linters: [errcheck, govet, ineffassign]
+      severity: blocker
+    - linters: [staticcheck, unused]
+      severity: critical
+    - linters: [errorlint, gocritic]
+      severity: major
