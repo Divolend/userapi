@@ -23,7 +23,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Println(err)
+		}
+	}()
 	log.Println("Successfully connected to database!")
 	repo := repository.NewPostgresUserRepository(db)
 	handler.UserService = service.NewUserService(repo)
@@ -35,6 +39,8 @@ func main() {
 	router.PATCH("/users/:id", handler.AuthMiddleware, handler.UpdateHandler)
 	router.DELETE("/users/:id", handler.AuthMiddleware, handler.DeleteHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	router.Run(":8080")
+	if err := router.Run(":8080"); err != nil {
+		log.Println(err)
+	}
 
 }

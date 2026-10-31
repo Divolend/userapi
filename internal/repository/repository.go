@@ -88,14 +88,13 @@ func (r *InMemoryUserRepository) DeleteUser(id int) (models.User, error) {
 
 }
 
-
 type PostgresUserRepository struct {
 	db *sql.DB
 }
 
-func NewPostgresUserRepository(DB *sql.DB) *PostgresUserRepository {
+func NewPostgresUserRepository(db *sql.DB) *PostgresUserRepository {
 
-	return &PostgresUserRepository{db: DB}
+	return &PostgresUserRepository{db: db}
 
 }
 
