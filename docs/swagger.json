@@ -71,6 +71,15 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254
+                },
+                "city": {
+                    "type": "string",
+                    "maxLength": 120
                 }
             }
         }

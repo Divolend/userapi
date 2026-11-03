@@ -82,4 +82,18 @@ func TestPostgresIntegration(t *testing.T) {
 			t.Fatalf("email changed after rejected patch: %+v %v", saved, err)
 		}
 	})
+	t.Run("city persisted after migration", func(t *testing.T) {
+		request(t, r, "POST", "/users", `{"name":"CityUser","age":24,"city":"Moscow"}`, "test", 200, "Moscow")
+		u, found, err := repo.FindByName("CityUser")
+		if err != nil || !found || u.City != "Moscow" {
+			t.Fatalf("city not persisted: %+v %v", u, err)
+		}
+		path := "/users/" + strconv.Itoa(u.ID)
+		request(t, r, "PATCH", path, `{"city":"Kazan"}`, "test", 200, "Kazan")
+		request(t, r, "GET", path, "", "", 200, "Kazan")
+		saved, _, err := repo.FindByID(u.ID)
+		if err != nil || saved.City != "Kazan" {
+			t.Fatalf("city update not persisted: %+v %v", saved, err)
+		}
+	})
 }

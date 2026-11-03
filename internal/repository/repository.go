@@ -62,6 +62,9 @@ func (r *InMemoryUserRepository) UpdateField(id int, fields models.UserUpdate) (
 			if fields.Age != nil {
 				r.users[i].Age = *fields.Age
 			}
+			if fields.City != nil {
+				r.users[i].City = *fields.City
+			}
 			if fields.Email != nil {
 				r.users[i].Email = *fields.Email
 			}
@@ -103,7 +106,7 @@ func NewPostgresUserRepository(db *sql.DB) *PostgresUserRepository {
 
 func (r *PostgresUserRepository) Create(user models.User) (models.User, error) {
 
-	err := r.db.QueryRow("INSERT INTO users(name,age,email) values($1,$2,$3) RETURNING id", user.Name, user.Age, user.Email).Scan(&user.ID)
+	err := r.db.QueryRow("INSERT INTO users(name,age,email,city) values($1,$2,$3,$4) RETURNING id", user.Name, user.Age, user.Email, user.City).Scan(&user.ID)
 	if err != nil {
 		return models.User{}, fmt.Errorf("failed to create user : %w", err)
 
@@ -114,7 +117,7 @@ func (r *PostgresUserRepository) Create(user models.User) (models.User, error) {
 
 func (r *PostgresUserRepository) FindByName(name string) (models.User, bool, error) {
 	var u models.User
-	err := r.db.QueryRow("SELECT id,name,age,email FROM users WHERE name = $1", name).Scan(&u.ID, &u.Name, &u.Age, &u.Email)
+	err := r.db.QueryRow("SELECT id,name,age,email,city FROM users WHERE name = $1", name).Scan(&u.ID, &u.Name, &u.Age, &u.Email, &u.City)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.User{}, false, nil
@@ -127,7 +130,7 @@ func (r *PostgresUserRepository) FindByName(name string) (models.User, bool, err
 }
 func (r *PostgresUserRepository) FindByID(id int) (models.User, bool, error) {
 	var u models.User
-	err := r.db.QueryRow("SELECT id,name,age,email FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Age, &u.Email)
+	err := r.db.QueryRow("SELECT id,name,age,email,city FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Age, &u.Email, &u.City)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.User{}, false, nil
@@ -157,6 +160,11 @@ func (r *PostgresUserRepository) UpdateField(id int, fields models.UserUpdate) (
 		args = append(args, *fields.Email)
 		argIndex++
 	}
+	if fields.City != nil {
+		setParts = append(setParts, fmt.Sprintf("city = $%d", argIndex))
+		args = append(args, *fields.City)
+		argIndex++
+	}
 	if len(setParts) == 0 {
 		u, found, err := r.FindByID(id)
 		if err != nil {
@@ -168,10 +176,10 @@ func (r *PostgresUserRepository) UpdateField(id int, fields models.UserUpdate) (
 		return u, nil
 	}
 
-	query := "UPDATE users SET " + strings.Join(setParts, ", ") + fmt.Sprintf(" WHERE id = $%d RETURNING id,name,age,email", argIndex)
+	query := "UPDATE users SET " + strings.Join(setParts, ", ") + fmt.Sprintf(" WHERE id = $%d RETURNING id,name,age,email,city", argIndex)
 	args = append(args, id)
 	var u models.User
-	err := r.db.QueryRow(query, args...).Scan(&u.ID, &u.Name, &u.Age, &u.Email)
+	err := r.db.QueryRow(query, args...).Scan(&u.ID, &u.Name, &u.Age, &u.Email, &u.City)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.User{}, ErrUserNotFound
@@ -187,7 +195,7 @@ func (r *PostgresUserRepository) UpdateField(id int, fields models.UserUpdate) (
 func (r *PostgresUserRepository) DeleteUser(id int) (models.User, error) {
 	var u models.User
 
-	err := r.db.QueryRow("DELETE FROM users WHERE id = $1 RETURNING id, name, age, email", id).Scan(&u.ID, &u.Name, &u.Age, &u.Email)
+	err := r.db.QueryRow("DELETE FROM users WHERE id = $1 RETURNING id, name, age, email, city", id).Scan(&u.ID, &u.Name, &u.Age, &u.Email, &u.City)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.User{}, ErrUserNotFound

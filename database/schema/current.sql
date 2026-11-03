@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1lR4SSz6GLTXwTrJa0IdwqPwEJivmLloWj0Ns1g1k1gQYbBOIIzra5f3C1TMAsd
+\restrict X42ePlA5GNFHkYawXJWK08dgomrye2WPuEasXViiuJfhrF64OTqDPuWZuScoym2
 
 -- Dumped from database version 16.15 (Debian 16.15-1.pgdg13+2)
 -- Dumped by pg_dump version 16.15 (Debian 16.15-1.pgdg13+2)
@@ -45,6 +45,7 @@ CREATE TABLE public.users (
     name character varying NOT NULL,
     age integer NOT NULL,
     email character varying(254) DEFAULT ''::character varying NOT NULL,
+    city character varying(120) DEFAULT ''::character varying NOT NULL,
     CONSTRAINT users_age_check CHECK ((age > 0))
 );
 
@@ -96,5 +97,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1lR4SSz6GLTXwTrJa0IdwqPwEJivmLloWj0Ns1g1k1gQYbBOIIzra5f3C1TMAsd
+\unrestrict X42ePlA5GNFHkYawXJWK08dgomrye2WPuEasXViiuJfhrF64OTqDPuWZuScoym2
 
