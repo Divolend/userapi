@@ -45,7 +45,7 @@ func (s *UserService) FindByID(id int) (models.User, error) {
 }
 
 func (s *UserService) UpdateUser(id int, fields models.UserUpdate) (models.User, error) {
-	if fields.Age != nil && *fields.Age <= 0 {
+	if fields.Age != nil && *fields.Age < 0 {
 		return models.User{}, ErrInvalidAge
 	}
 
