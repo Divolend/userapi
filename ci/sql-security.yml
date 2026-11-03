@@ -1,0 +1,36 @@
+rules:
+  - id: sql-public-privileges
+    languages: [generic]
+    severity: ERROR
+    message: Do not grant SQL privileges to PUBLIC. Use a restricted application role.
+    pattern-regex: '(?is)\bGRANT\b[^;]*\bTO\s+PUBLIC\b'
+    paths:
+      include: ['*.sql']
+  - id: sql-superuser-role
+    languages: [generic]
+    severity: ERROR
+    message: Application SQL must not create or promote a SUPERUSER role.
+    pattern-regex: '(?is)\b(?:CREATE|ALTER)\s+(?:USER|ROLE)\b[^;]*\bSUPERUSER\b'
+    paths:
+      include: ['*.sql']
+  - id: sql-copy-program
+    languages: [generic]
+    severity: ERROR
+    message: COPY PROGRAM can execute operating system commands and is forbidden.
+    pattern-regex: '(?is)\bCOPY\b[^;]*\b(?:FROM|TO)\s+PROGRAM\b'
+    paths:
+      include: ['*.sql']
+  - id: sql-literal-password
+    languages: [generic]
+    severity: ERROR
+    message: Do not commit role passwords in SQL files. Provision secrets separately.
+    pattern-regex: '(?is)\bPASSWORD\s+\x27[^\x27]+\x27'
+    paths:
+      include: ['*.sql']
+  - id: sql-security-definer-review
+    languages: [generic]
+    severity: ERROR
+    message: SECURITY DEFINER is forbidden in this application schema; review privilege boundaries.
+    pattern-regex: '(?i)\bSECURITY\s+DEFINER\b'
+    paths:
+      include: ['*.sql']

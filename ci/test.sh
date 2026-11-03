@@ -31,7 +31,9 @@ if [ "$kind" = integration ]; then
   sleep 1
  done
  [ "$ready" = 1 ] || { docker logs "$db";exit 1; }
- docker exec -i "$db" psql -v ON_ERROR_STOP=1 -U lab7 -d userapi_lab7_test < migrations/000001_create_users_table.up.sql
+ for migration in migrations/*.up.sql; do
+  docker exec -i "$db" psql -v ON_ERROR_STOP=1 -U lab7 -d userapi_lab7_test < "$migration"
+ done
  args=(--network "$network" -e USERAPI_TEST_DATABASE=1 -e DB_HOST=db -e DB_PORT=5432 -e DB_USER=lab7 -e DB_PASSWORD="$password" -e DB_NAME=userapi_lab7_test)
 fi
 # Named caches avoid recompiling Gin on every build and work with a containerized agent.
