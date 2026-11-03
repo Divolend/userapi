@@ -15,6 +15,10 @@ rc=$?
 [ $rc -eq 0 ] || fail_build golangci-run "golangci-lint завершился с ошибкой (код $rc)"
 [ -f "$REPORTS_DIR/golangci.json" ] || fail_build golangci-report "golangci-lint: отчёт не создан"
 
+# A typecheck failure means analysis did not complete; severity filtering must not hide it.
+if grep -Eq '"check_name"[[:space:]]*:[[:space:]]*"typecheck"' "$REPORTS_DIR/golangci.json"; then
+ fail_build golangci-typecheck "golangci-lint: typecheck failed; analysis incomplete"
+fi
 blockers=$(grep -o '"severity":"blocker"' "$REPORTS_DIR/golangci.json" | wc -l)
 echo "golangci-lint: находок уровня BLOCKER: $blockers"
 [ "$blockers" -eq 0 ] || fail_build golangci-blocker "golangci-lint: найдено BLOCKER: $blockers"

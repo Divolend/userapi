@@ -1,0 +1,10 @@
+services:
+  app:
+    image: derbara/userapi:${APP_TAG:?set immutable production image tag}
+    container_name: userapi_prod_app
+    network_mode: host
+    env_file:
+      - /home/pkm/userapi-production.env
+    volumes:
+      - /home/pkm/userapi-prod-logs:/app/logs
+    restart: unless-stopped

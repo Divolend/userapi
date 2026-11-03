@@ -26,3 +26,23 @@ Official references:
 - https://github.com/golang-migrate/migrate
 - https://github.com/golang-migrate/migrate/releases/tag/v4.20.1
 - https://www.postgresql.org/docs/16/app-pgdump.html
+
+## Stage 2 automated delivery
+
+Migration 000003 adds optional `city` (varchar(120), NOT NULL DEFAULT ''). The API persists it on POST/PATCH and returns it on GET; PostgreSQL integration tests verify Moscow → Kazan. `schema/v2.sql` retains the email-only schema; `current.sql` is the real TEST export with city.
+
+DEV order: existing scans/build/tests → SSH capture of live TEST schema → Docker push → SSH compare/migrate STAGE → pinned app deployment and temporary API smoke test. PROD is a separate TeamCity configuration: scans/build/tests → capture live STAGE schema → publish immutable `prod-N` image → full PROD backup and scratch restore → compare/migrate PROD → app deployment and smoke test.
+
+The reference step verifies the live schema against the export committed with the build, then sends normalized DDL and migration version via TeamCity `setParameter` messages (`lab8.reference`, `lab8.version`). Initial values are `unset`/`0`; migration refuses these values. A target must match the snapshot for its recorded version before any DDL. After migration the entire normalized application DDL must equal the live reference captured for this release. A fingerprint over all pre-existing user columns must remain unchanged. A mismatch stops delivery.
+
+All SSH steps check out the exact `%build.vcs.number%`, not the latest branch head. Database credentials stay on their own VM. The existing native PROD database is retained; the app runs in Docker host-network mode against 127.0.0.1:5432 using a separate non-administrative runtime role. Its environment file is outside Git, mode 0600.
+
+Backup files stay in `~/userapi-backups` (directory 0700, dumps 0600). A release-specific marker and SHA256 are required before PROD migration. `backup-prod.py` restores the dump into a separately named scratch database, checks its user count/fingerprint and removes only that scratch database. `smoke-api.py` creates a uniquely named Lab8Check user, exercises email/city CRUD and deletes only its own record in `finally`, verifying GET 404 afterward. The real PROD database initially has zero users; an empty-table restore must be reported as such.
+
+Schema evidence is kept on target hosts in `~/userapi-lab8-evidence/<TeamCity build ID>`: before/reference/after DDL, unified diff, result JSON, and PROD backup marker. Logs are visible in TeamCity. SQL security reports and Go logs/coverage are CI artifacts.
+
+Additional official references:
+- https://www.jetbrains.com/help/teamcity/service-messages.html
+- https://www.jetbrains.com/help/teamcity/configuring-build-parameters.html
+- https://docs.liquibase.com/community/reference-guide-5-0/database-inspection-change-tracking-and-utility-commands/diff
+- https://documentation.red-gate.com/flyway/reference/commands/validate

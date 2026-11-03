@@ -2,6 +2,13 @@ basePath: /
 definitions:
   main.User:
     properties:
+      email:
+        type: string
+        format: email
+        maxLength: 254
+      city:
+        type: string
+        maxLength: 120
       age:
         type: integer
       id:

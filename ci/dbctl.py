@@ -64,7 +64,13 @@ class DB:
             cmd = ['sudo', '-n', 'docker', 'exec', self.container, '/tmp/userapi-migrate', '-path', '/tmp/userapi-migrations', '-database', url]
         else:
             # Peer authentication as postgres through the local Unix socket.
-            cmd = NATIVE + [MIGRATE, '-path', str(ROOT / 'migrations'), '-database', 'postgres:///rest_api_db?host=/var/run/postgresql&sslmode=disable']
+            files = sorted((ROOT / 'migrations').glob('*.sql'))
+            signature = hashlib.sha256(b''.join(f.read_bytes() for f in files)).hexdigest()[:16]
+            folder = '/var/lib/userapi-migrations/' + signature
+            run(['sudo', '-n', 'install', '-d', '-m', '755', folder])
+            for source in files:
+                run(['sudo', '-n', 'install', '-m', '644', str(source), folder + '/' + source.name])
+            cmd = NATIVE + [MIGRATE, '-path', folder, '-database', 'postgres:///rest_api_db?host=/var/run/postgresql&sslmode=disable']
         if self.sql("SELECT to_regclass('public.schema_migrations') IS NOT NULL").strip() == b'f':
             if adopt:
                 if normalize(self.dump()) != normalize((ROOT / 'database/schema/current.sql').read_bytes()):
