@@ -66,4 +66,20 @@ func TestPostgresIntegration(t *testing.T) {
 			t.Fatalf("unauthorized insert: %v %v", exists, err)
 		}
 	})
+	t.Run("email persisted and validated", func(t *testing.T) {
+		request(t, r, "POST", "/users", `{"name":"EmailUser","age":25,"email":"diana@example.test"}`, "test", 200, "diana@example.test")
+		u, found, err := repo.FindByName("EmailUser")
+		if err != nil || !found || u.Email != "diana@example.test" {
+			t.Fatalf("email not persisted: %+v %v", u, err)
+		}
+		path := "/users/" + strconv.Itoa(u.ID)
+		request(t, r, "GET", path, "", "", 200, "diana@example.test")
+		request(t, r, "PATCH", path, `{"email":"new@example.test"}`, "test", 200, "new@example.test")
+		request(t, r, "POST", "/users", `{"name":"BadEmail","age":25,"email":"not-an-email"}`, "test", 400, "")
+		request(t, r, "PATCH", path, `{"email":"invalid"}`, "test", 400, "")
+		saved, _, err := repo.FindByID(u.ID)
+		if err != nil || saved.Email != "new@example.test" {
+			t.Fatalf("email changed after rejected patch: %+v %v", saved, err)
+		}
+	})
 }

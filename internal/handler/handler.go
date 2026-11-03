@@ -38,9 +38,8 @@ func CreateUserHandler(c *gin.Context) {
 		return
 	}
 
-	c.String(200, "Данные нового пользователя: ID - %d Имя - %s, возраст - %d\n", createdUser.ID, createdUser.Name, createdUser.Age)
+	c.String(200, "Данные нового пользователя: ID - %d Имя - %s, возраст - %d, email - %s\n", createdUser.ID, createdUser.Name, createdUser.Age, createdUser.Email)
 }
-
 
 func IdHandler(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -59,7 +58,7 @@ func IdHandler(c *gin.Context) {
 		return
 
 	}
-	c.String(200, "По данному айди найден пользователь: ID - %d, Имя - %s, возраст - %d\n", user.ID, user.Name, user.Age)
+	c.String(200, "По данному айди найден пользователь: ID - %d, Имя - %s, возраст - %d, email - %s\n", user.ID, user.Name, user.Age, user.Email)
 
 }
 func UpdateHandler(c *gin.Context) {
@@ -92,7 +91,7 @@ func UpdateHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	c.String(http.StatusOK, fmt.Sprintf("Обновленные данные пользователя: Id : %d, имя : %s, возраст: %d\n", updateUser.ID, updateUser.Name, updateUser.Age))
+	c.String(http.StatusOK, fmt.Sprintf("Обновленные данные пользователя: Id : %d, имя : %s, возраст: %d, email: %s\n", updateUser.ID, updateUser.Name, updateUser.Age, updateUser.Email))
 
 }
 func DeleteHandler(c *gin.Context) {
@@ -130,4 +129,3 @@ func AuthMiddleware(c *gin.Context) {
 	c.Next()
 
 }
-
